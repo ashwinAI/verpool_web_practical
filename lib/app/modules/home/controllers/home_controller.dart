@@ -16,6 +16,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
 
   @override
   Future<void> onInit() async {
+    //--
     homeApi();
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
