@@ -2,8 +2,9 @@
 
 A new Flutter project.
 
-##--- using Floor database(Local database)
 ## -- flutter 3.16.9(flutter sdk)
+
+-- using state management(GETX)
 
 this packages use in app
     #get_cli:
@@ -13,4 +14,3 @@ this packages use in app
     #dio: ^5.7.0
     #flutter_screenutil: ^5.9.3
     #shared_preferences:
-    #visibility_detector: ^0.4.0+2

@@ -2,8 +2,10 @@ import 'package:get/get.dart';
 
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
-import '../modules/post/bindings/post_binding.dart';
-import '../modules/post/views/post_view.dart';
+import '../modules/item/bindings/item_binding.dart';
+import '../modules/item/views/item_view.dart';
+import '../modules/map/bindings/map_binding.dart';
+import '../modules/map/views/map_view.dart';
 
 part 'app_routes.dart';
 
@@ -19,9 +21,14 @@ class AppPages {
       binding: HomeBinding(),
     ),
     GetPage(
-      name: _Paths.POST,
-      page: () => const PostView(),
-      binding: PostBinding(),
+      name: _Paths.MAP,
+      page: () => const MapView(),
+      binding: MapBinding(),
+    ),
+    GetPage(
+      name: _Paths.ITEM,
+      page: () => const ItemView(),
+      binding: ItemBinding(),
     ),
   ];
 }

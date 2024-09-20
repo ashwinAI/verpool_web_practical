@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get_navigation/get_navigation.dart';
+import 'package:get_storage/get_storage.dart';
 
-import 'app/routes/app_pages.dart';
-// import 'databse.dart';
+import 'helper/all.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensures the Flutter engine is fully initialized
+  await GetStorage.init(); // Initializes GetStorage before the app runs
+
   runApp(const MyApp());
 }
 

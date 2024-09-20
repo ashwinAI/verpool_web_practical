@@ -1,9 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:visibility_detector/visibility_detector.dart';
+import 'package:get/get.dart';
 
-import '../../../../databse.dart';
-import '../../../../helper/all.dart';
-import '../../../../person.dart';
+import '../../../../getStorageData.dart';
+import '../../../../helper/home_model.dart';
+import '../../../routes/app_pages.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -12,126 +14,196 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     Get.put(HomeController());
+
     return GetBuilder<HomeController>(
       builder: (controller) {
         return Scaffold(
-            body: controller.homeList.isNotEmpty && controller.allPersonsList.isNotEmpty
+            key: controller.scaffoldKey,
+            drawer: SizedBox(
+              width: Get.width / 1.3,
+              child: Drawer(
+                child: ListView(
+                  // Important: Remove any padding from the ListView.
+                  padding: EdgeInsets.zero,
+                  children: [
+                    DrawerHeader(
+                      decoration: const BoxDecoration(
+                        color: Colors.blueGrey,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                            child: const Icon(
+                              Icons.person,
+                              size: 70,
+                            ),
+                          ),
+                          10.horizontalSpace,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'verloop web',
+                                style: TextStyle(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              5.verticalSpace,
+                              Text(
+                                'verloop@gmail.com',
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.location_on,
+                      ),
+                      title: const Text('Location Tracking'),
+                      onTap: () {
+                        Get.toNamed(Routes.MAP);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            appBar: AppBar(
+              backgroundColor: Colors.blueGrey,
+              title: Text(
+                'HomeView',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 20.sp,
+                ),
+              ),
+            ),
+            body: controller.homeList.isNotEmpty
                 ? Container(
                     color: Colors.grey.withOpacity(0.05),
                     child: Column(
                       children: [
-                        Padding(
-                          padding: EdgeInsets.only(top: 10.h, bottom: 5.h),
-                          child: Container(
-                            height: MediaQuery.of(context).padding.top + 45.h,
-                            width: double.infinity,
-                            alignment: Alignment.bottomCenter,
-                            child: Padding(
-                              padding: EdgeInsets.only(bottom: 12.h),
-                              child: Text(
-                                'HomeView',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 20.sp,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
                         Expanded(
-                          child: ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            itemCount: controller.homeList.length,
-                            itemBuilder: (context, index) {
-                              return VisibilityDetector(
-                                key: Key('item-asasd$index'),
-                                onVisibilityChanged: (VisibilityInfo info) {
-                                  controller.allPersonsList[index].isScreenVisible = info.visibleFraction > 0;
-                                  controller.update();
-                                },
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    final database = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
-                                    final personDao = database.personDao;
-                                    controller.allPersonsList[index].isOpen = true;
-                                    controller.allPersonsList.forEach(
-                                      (element) async {
-                                        final updatedPerson = Person(
-                                          element.id,
-                                          element.time,
-                                          element.isOpen,
-                                          element.isScreenVisible,
-                                        );
-                                        await personDao.updatePerson(updatedPerson);
-                                      },
-                                    );
-                                    Get.toNamed(Routes.POST, arguments: controller.homeList[index])?.then(
-                                      (value) async {
-                                        controller.allPersonsList = await personDao.findAllPersons();
-                                      },
-                                    );
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 12.h, vertical: 14.h),
-                                    margin: const EdgeInsets.only(bottom: 12),
-                                    decoration: BoxDecoration(
-                                      color: controller.allPersonsList[index].isOpen ? Colors.white : const Color(0xFFffffc5),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(12.r),
+                          child: ListView(
+                            padding: EdgeInsets.zero,
+                            physics: const BouncingScrollPhysics(),
+                            children: [
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                itemCount: controller.homeList.length < controller.page * controller.perPage
+                                    ? controller.homeList.length
+                                    : controller.page * controller.perPage,
+                                itemBuilder: (context, index) {
+                                  HomeModel obj = controller.homeList[index];
+                                  return GestureDetector(
+                                    onTap: () async {
+                                      Get.toNamed(Routes.ITEM, arguments: obj)!.then(
+                                        (value) {
+                                          print('avavav-productsproducts---------------->>>>>>${GetStorageData().containKey('products')}');
+                                        },
+                                      );
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 12.h, vertical: 14.h),
+                                      margin: const EdgeInsets.only(bottom: 12),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.withOpacity(0.12),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(12.r),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          ClipOval(
+                                            child: CachedNetworkImage(
+                                              imageUrl: obj.category!.image!,
+                                              progressIndicatorBuilder: (context, url, downloadProgress) =>
+                                                  CircularProgressIndicator(value: downloadProgress.progress),
+                                              errorWidget: (context, url, error) => const Icon(Icons.error),
+                                              height: 50,
+                                              width: 50,
+                                            ),
+                                          ),
+                                          10.horizontalSpace,
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  obj.title!,
+                                                  maxLines: 1,
+                                                  style: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  obj.description!,
+                                                  maxLines: 1,
+                                                  style: TextStyle(
+                                                    fontSize: 16.sp,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  );
+                                },
+                              ),
+                              Visibility(
+                                visible: controller.homeList.length > controller.page * controller.perPage,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        print('ffff----------------->>>>>>${controller.homeList.length}');
+                                        print('mmm----------------->>>>>>${controller.page * controller.perPage}');
+                                        if (controller.homeList.length > controller.page * controller.perPage) {
+                                          controller.page++;
+                                        }
+                                        controller.update();
+                                      },
+                                      child: Container(
+                                        margin: const EdgeInsets.only(right: 15, bottom: 10),
+                                        decoration: BoxDecoration(
+                                            color: Colors.grey.withOpacity(0.6), borderRadius: const BorderRadius.all(Radius.circular(20))),
+                                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                        child: Row(
                                           children: [
-                                            Expanded(
-                                              child: Text(
-                                                controller.homeList[index]['title'],
-                                                maxLines: 1,
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.only(left: 10.h),
-                                              child: Text(
-                                                // '${controller.allPersonsList[index].time == 0 ? '' : controller.allPersonsList[index].time}', // 'aa',
-                                                '${controller.allPersonsList[index].time}', // 'aa',
-                                                style: TextStyle(
-                                                  fontSize: 18.sp,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
+                                            Text(
+                                              'Next ${controller.page}/${((controller.homeList.length ~/ controller.perPage)) + ((controller.homeList.length % controller.perPage) != 0 ? 1 : 0)}',
+                                              style: TextStyle(fontSize: 16.sp),
                                             ),
                                           ],
                                         ),
-                                        4.verticalSpace,
-                                        Text(
-                                          controller.homeList[index]['body'],
-                                          maxLines: 2,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        )
-                                      ],
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              );
-                            },
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   )
-                : !controller.isEmpty.value
-                    ? const Center(child: CircularProgressIndicator())
-                    : const Center(child: Text('No data found')));
+                : const Center(child: CircularProgressIndicator()));
       },
     );
   }
